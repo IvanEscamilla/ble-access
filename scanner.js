@@ -91,7 +91,7 @@ function getDistance() {
     if (descriptors) {
         descriptors.readValue(function(error, data) {
           if (data) {
-            var characteristicInfo += ' (' + data.toString() + ')';
+            var characteristicInfo = ' (' + data.toString() + ')';
             if (characteristic.properties.indexOf('read') !== -1) {
               characteristic.read(function(error, data) {
                 if (data) {
