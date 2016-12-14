@@ -86,16 +86,23 @@ noble.on('discover', function(peripheral) {
 
 function getDistance() {
   console.log(loginCharacteristic);
-  loginCharacteristic.on('read', function(data, isNotification) {
-    console.log('Leyendo data caracteristica!');
-    if (data.length !== 0) {
-      var string = data.toString('ascii');
-      characteristicInfo += '\n    Valor       ' + data.toString('hex') + ' | \'' + string + '\'';
-      console.log(characteristicInfo);
-    }
-    else {
-      console.log('Leyendo data caracteristica!');
+
+  characteristic.discoverDescriptors(function(error, descriptors) {
+    if (descriptors) {
+        descriptors.readValue(function(error, data) {
+          if (data) {
+            var characteristicInfo += ' (' + data.toString() + ')';
+            if (characteristic.properties.indexOf('read') !== -1) {
+              characteristic.read(function(error, data) {
+                if (data) {
+                  var string = data.toString('ascii');
+                  characteristicInfo += '\n    value       ' + data.toString('hex') + ' | \'' + string + '\'';
+                  console.log(characteristicInfo);
+                }
+              });
+            }
+          }
+      });
     }
   });
-
 }
