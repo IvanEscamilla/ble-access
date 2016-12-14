@@ -42,7 +42,7 @@ noble.on('discover', function(peripheral) {
     //
     console.log('Conectado:');
 
-    peripheral.discoverServices([serviceUuidToTrack], function(err, services) {
+    peripheral.discoverServices([], function(err, services) {
       services.forEach(function(service) {
         //
         // This must be the service we were looking for.
