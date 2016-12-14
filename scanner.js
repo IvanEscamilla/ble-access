@@ -85,7 +85,7 @@ noble.on('discover', function(peripheral) {
 });
 
 function getDistance() {
-
+  console.log(loginCharacteristic);
   loginCharacteristic.on('read', function(data, isNotification) {
     console.log('Leyendo data caracteristica!');
     if (data.length !== 0) {
