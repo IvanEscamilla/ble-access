@@ -25,7 +25,7 @@ noble.on('discover', function(peripheral) {
   var rss = peripheral.rssi;
   var localName = peripheral.advertisement.localName;
   console.log('BLE: ', macAddress, ' ', localName, ' ', rss);
-  console.log('Services: ', uuids);
+  console.log('Services: ', peripheral);
 });
 
 function readCharacteristic(peripheral) {
