@@ -8,10 +8,14 @@ var socket = require('socket.io-client')('http://localhost/scanner');
 var serviceToTrack = 'E6ED937950CF4C2687A8DE1D4B75BDAB';
 var characteristicToRead = ['551A74EA928D439B9225AE3CCC275822'];
 var peripheralToRead = "TestPeripheral";
+var allowDuplicates = true; // default: false
+
 
 noble.on('stateChange', function(state) {
   if(state === 'poweredOn') {
-    noble.startScanning();
+    //noble.startScanning();
+    noble.startScanning([], true);
+
     console.log('scanning...');
   } else {
     console.log('not scanning');
@@ -21,7 +25,7 @@ noble.on('stateChange', function(state) {
 
 noble.on('discover', function(peripheral) {   
   var uuids = peripheral.advertisement.serviceUuids
-  var macAddress = peripheral.uuid;
+  var macAddress = peripheral.address;
   var rss = peripheral.rssi;
   var localName = peripheral.advertisement.localName;
   console.log('BLE: ', macAddress, ' ', localName, ' ', rss);
