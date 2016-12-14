@@ -13,7 +13,7 @@ var allowDuplicates = false; // default: false
 
 noble.on('stateChange', function(state) {
   if(state === 'poweredOn') {
-    noble.startScanning([serviceUuidToTrack], allowDuplicates);
+    noble.startScanning();
     console.log('scanning...');
   } else {
     console.log('not scanning');
