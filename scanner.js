@@ -1,4 +1,5 @@
 var noble = require('noble');
+var async = require('async');
 
 //replace localhost with your server's IP;
 var socket = require('socket.io-client')('http://localhost/scanner');
