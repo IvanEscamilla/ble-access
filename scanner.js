@@ -87,13 +87,13 @@ noble.on('discover', function(peripheral) {
 function getDistance() {
   console.log(loginCharacteristic);
 
-  characteristic.discoverDescriptors(function(error, descriptors) {
+  loginCharacteristic.discoverDescriptors(function(error, descriptors) {
     if (descriptors) {
         descriptors.readValue(function(error, data) {
           if (data) {
             var characteristicInfo = ' (' + data.toString() + ')';
-            if (characteristic.properties.indexOf('read') !== -1) {
-              characteristic.read(function(error, data) {
+            if (loginCharacteristic.properties.indexOf('read') !== -1) {
+              loginCharacteristic.read(function(error, data) {
                 if (data) {
                   var string = data.toString('ascii');
                   characteristicInfo += '\n    value       ' + data.toString('hex') + ' | \'' + string + '\'';
