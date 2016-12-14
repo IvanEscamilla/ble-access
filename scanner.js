@@ -82,3 +82,24 @@ noble.on('discover', function(peripheral) {
     })
   })
 });
+
+function getDistance() {
+
+  loginCharacteristic.on('read', function(data, isNotification) {
+    console.log('Leyendo data caracteristica!');
+    if (data.length !== 0) {
+      var result = data.readUInt8(0);
+      console.log('The result is',
+        result == pizza.PizzaBakeResult.HALF_BAKED ? 'half baked.' :
+        result == pizza.PizzaBakeResult.BAKED ? 'baked.' :
+        result == pizza.PizzaBakeResult.CRISPY ? 'crispy.' :
+        result == pizza.PizzaBakeResult.BURNT ? 'burnt.' :
+        result == pizza.PizzaBakeResult.ON_FIRE ? 'on fire!' :
+          'unknown?');
+    }
+    else {
+      console.log('result length incorrect')
+    }
+  });
+
+}
