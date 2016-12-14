@@ -40,6 +40,8 @@ noble.on('discover', function(peripheral) {
     // Once the peripheral has been connected, then discover the
     // services and characteristics of interest.
     //
+    console.log('Conectado:');
+
     peripheral.discoverServices([serviceUuidToTrack], function(err, services) {
       services.forEach(function(service) {
         //
