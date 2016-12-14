@@ -24,17 +24,8 @@ noble.on('discover', function(peripheral) {
   var macAddress = peripheral.uuid;
   var rss = peripheral.rssi;
   var localName = peripheral.advertisement.localName;
-  console.log('found device: ', macAddress, ' ', localName, ' ', rss);
-
-  if(typeof localName !== "undefined"){
-    console.log("Not Undefined!!!");
-
-    if(localName == peripheralToRead) {
-        console.log("Service Found!!!");
-        readCharacteristic(peripheral);
-
-    }
-  } 
+  console.log('BLE: ', macAddress, ' ', localName, ' ', rss);
+  console.log('Services: ', uuids);
 });
 
 function readCharacteristic(peripheral) {
