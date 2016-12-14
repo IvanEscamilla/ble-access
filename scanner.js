@@ -5,17 +5,15 @@ var async = require('async');
 var socket = require('socket.io-client')('http://localhost/scanner');
 
 //replace with your hardware address
-var serviceToTrack = 'E6ED937950CF4C2687A8DE1D4B75BDAB';
-var characteristicToRead = ['551A74EA928D439B9225AE3CCC275822'];
+var serviceUuidToTrack = 'E6ED937950CF4C2687A8DE1D4B75BDAB';
+var characteristicUuidToRead = '551A74EA928D439B9225AE3CCC275822';
 var peripheralToRead = "TestPeripheral";
-var allowDuplicates = true; // default: false
+var allowDuplicates = false; // default: false
 
 
 noble.on('stateChange', function(state) {
   if(state === 'poweredOn') {
-    //noble.startScanning();
-    noble.startScanning([], true);
-
+    noble.startScanning([serviceUuidToTrack], allowDuplicates);
     console.log('scanning...');
   } else {
     console.log('not scanning');
@@ -23,110 +21,61 @@ noble.on('stateChange', function(state) {
   }
 });
 
+var loginService = null;
+var loginCharacteristic = null;
+
 noble.on('discover', function(peripheral) {   
+  // we found a peripheral, stop scanning
+  noble.stopScanning();
+
   var uuids = peripheral.advertisement.serviceUuids
   var macAddress = peripheral.address;
   var rss = peripheral.rssi;
   var localName = peripheral.advertisement.localName;
   console.log('BLE: ', macAddress, ' ', localName, ' ', rss);
   console.log('Services: ', peripheral);
-});
 
-function readCharacteristic(peripheral) {
-  console.log('Reading characteristics from : ', peripheral.advertisement.localName);
+  peripheral.connect(function(err) {
+    //
+    // Once the peripheral has been connected, then discover the
+    // services and characteristics of interest.
+    //
+    peripheral.discoverServices([serviceUuidToTrack], function(err, services) {
+      services.forEach(function(service) {
+        //
+        // This must be the service we were looking for.
+        //
+        console.log('Servicio encontrado:', service.uuid);
 
-  peripheral.on('disconnect', function() {
-    process.exit(0);
-  });
+        //
+        // So, discover its characteristics.
+        //
+        service.discoverCharacteristics([], function(err, characteristics) {
 
-  peripheral.connect(function(error) {
-    peripheral.discoverServices([], function(error, services) {
-      var serviceIndex = 0;
+          characteristics.forEach(function(characteristic) {
+            //
+            // Loop through each characteristic and match them to the
+            // UUIDs that we know about.
+            //
+            console.log('Caracteristica Encontrada:', characteristic.uuid);
 
-      async.whilst(function () {
-          return (serviceIndex < services.length);
-        },
-        function(callback) {
-          var service = services[serviceIndex];
-          var serviceInfo = service.uuid;
+            if (characteristicUuidToRead == characteristic.uuid) {
+              loginCharacteristic = characteristic;
+            }
+          })
 
-          if (service.name) {
-            serviceInfo += ' (' + service.name + ')';
+          //
+          // Check to see if we found all of our characteristics.
+          //
+          if (characteristicUuidToRead) {
+            //make connection to socket to check credentials
+            console.log("conect to server");
           }
-          console.log(serviceInfo);
-
-          service.discoverCharacteristics([], function(error, characteristics) {
-            var characteristicIndex = 0;
-
-            async.whilst(
-              function () {
-                return (characteristicIndex < characteristics.length);
-              },
-              function(callback) {
-                var characteristic = characteristics[characteristicIndex];
-                var characteristicInfo = '  ' + characteristic.uuid;
-
-                if (characteristic.name) {
-                  characteristicInfo += ' (' + characteristic.name + ')';
-                }
-
-                async.series([
-                  function(callback) {
-                    characteristic.discoverDescriptors(function(error, descriptors) {
-                      async.detect(
-                        descriptors,
-                        function(descriptor, callback) {
-                          return callback(descriptor.uuid === '2901');
-                        },
-                        function(userDescriptionDescriptor){
-                          if (userDescriptionDescriptor) {
-                            userDescriptionDescriptor.readValue(function(error, data) {
-                              if (data) {
-                                characteristicInfo += ' (' + data.toString() + ')';
-                              }
-                              callback();
-                            });
-                          } else {
-                            callback();
-                          }
-                        }
-                      );
-                    });
-                  },
-                  function(callback) {
-                        characteristicInfo += '\n    properties  ' + characteristic.properties.join(', ');
-
-                    if (characteristic.properties.indexOf('read') !== -1) {
-                      characteristic.read(function(error, data) {
-                        if (data) {
-                          var string = data.toString('ascii');
-
-                          characteristicInfo += '\n    value       ' + data.toString('hex') + ' | \'' + string + '\'';
-                        }
-                        callback();
-                      });
-                    } else {
-                      callback();
-                    }
-                  },
-                  function() {
-                    console.log(characteristicInfo);
-                    characteristicIndex++;
-                    callback();
-                  }
-                ]);
-              },
-              function(error) {
-                serviceIndex++;
-                callback();
-              }
-            );
-          });
-        },
-        function (err) {
-          peripheral.disconnect();
-        }
-      );
-    });
-  });
-}
+          else {
+            console.log('missing characteristics');
+          }
+        })
+      })
+    })
+  })
+});
