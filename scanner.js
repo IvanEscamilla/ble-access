@@ -73,6 +73,7 @@ noble.on('discover', function(peripheral) {
             //make connection to socket to check credentials
             console.log(loginCharacteristic);
             console.log("conect to server");
+            getDistance();
           }
           else {
             console.log('missing characteristics');
